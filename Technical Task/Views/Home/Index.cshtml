@@ -1,0 +1,62 @@
+﻿@using Technical_Task.Models
+@model List<TextBoxModel>
+
+<div>
+    <label for="textBoxCount">Number of Textboxes:</label>
+    <input type="number" id="textBoxCount" />
+    <button id="addTextBoxBtn">Add Textboxes</button>
+</div>
+
+<div>
+    <input type="checkbox" id="checkAll" />
+    <label for="checkAll">Check All</label>
+</div>
+<div id="textBoxContainer"></div>
+<div>
+    <p>Total selected checkboxes: <span id="totalSelectedCount"></span></p>
+    <p>Total sum of selected numbers: <span id="totalSum"></span></p>
+</div>
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#addTextBoxBtn').click(function () {
+                var count = $('#textBoxCount').val();
+                $.post('@Url.Action("GenerateTextBoxes", "Home")', { count: count }, function (data) {
+                    $('#textBoxContainer').html(data);
+                    updateTotalSum();
+                });
+            });
+
+            function updateTotalSum() {
+                var totalSum = 0;
+                $('.input-number').each(function () {
+                    var inputNumber = parseInt($(this).val());
+                    if (!isNaN(inputNumber) && $(this).prev().is(':checked')) {
+                        totalSum += inputNumber;
+                    }
+                });
+                $('#totalSum').text(totalSum);
+
+                // Send the total sum to the server
+                $.post('@Url.Action("CalculateTotalSum", "Home")', { totalSum: totalSum });
+            }
+
+            $(document).on('change', '.checkbox', function () {
+                var totalSelectedCount = $('.checkbox:checked').length;
+                $('#totalSelectedCount').text(totalSelectedCount);
+                updateTotalSum();
+            });
+
+            $(document).on('input', '.input-number', function () {
+                updateTotalSum();
+            });
+
+            $('#checkAll').change(function () {
+                var isChecked = $(this).is(':checked');
+                $('.checkbox').prop('checked', isChecked).trigger('change');
+            });
+        });
+    </script>
+}

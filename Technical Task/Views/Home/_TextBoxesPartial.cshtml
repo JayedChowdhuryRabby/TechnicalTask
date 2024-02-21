@@ -1,0 +1,10 @@
+﻿@using Technical_Task.Models
+
+@model List<TextBoxModel>
+
+@foreach (var textBox in Model)
+{
+    <input type="checkbox" class="checkbox" data-id="@textBox.Id" />
+    <input type="number" class="input-number" data-id="@textBox.Id" />
+    <br />
+}
